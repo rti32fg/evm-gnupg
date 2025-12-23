@@ -66,6 +66,12 @@ _requirements() {
   libevm-requirements
   _check_cmd \
     'evm-wallet'
+  _check_cmd \
+    "evm-openpgp-key-publish" \
+    "evm-openpgp-keyserver"
+  _check_cmd \
+    "evm-openpgp-key-receive" \
+    "evm-openpgp-keyserver"
   }
 
 _get_conf_dir_path() {
