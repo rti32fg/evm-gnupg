@@ -59,10 +59,11 @@ Commands
   Creates a new key for the input
   wallet.
 
-* export *out-file* *key-type*
+* export *out-file* *key-type* (*address*)
 
   Exports the key corresponding to
-  the wallet.
+  the wallet or if specified,
+  the input address.
 
 * import *import-source*
 

@@ -2,24 +2,26 @@
 
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-#    ----------------------------------------------------------------------
-#    Copyright © 2024, 2025  Pellegrino Prevete
+#    ---------------------------------------------------------------
+#    Copyright © 2024, 2025, 2026  Pellegrino Prevete
 #
 #    All rights reserved
-#    ----------------------------------------------------------------------
+#    ---------------------------------------------------------------
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    This program is free software: you can redistribute it and/or
+#    modify it under the terms of the GNU Affero General Public
+#    License as published by the Free Software Foundation, either
+#    version 3 of the License, or (at your option) any later
+#    version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Affero General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#    You should have received a copy of the GNU Affero General
+#    Public License along with this program.
+#    If not, see <https://www.gnu.org/licenses/>.
 
 _bin="$(
   dirname \
@@ -29,14 +31,14 @@ _bin="$(
 _lib="$(
   realpath \
     "${_bin}/../lib")"
-  _crash_bash="${_lib}/libcrash-bash/crash-bash"
-  _libevm="${_lib}/libevm/libevm"
-  _sourced \
-    "${_crash_bash}" 2>/dev/null || \
-    source \
-    "${_crash_bash}"
-  _sourced \
-    "${_libevm}"
+_crash_bash="${_lib}/libcrash-bash/crash-bash"
+_libevm="${_lib}/libevm/libevm"
+_sourced \
+  "${_crash_bash}" 2>/dev/null || \
+  source \
+  "${_crash_bash}"
+_sourced \
+  "${_libevm}"
 
 # shellcheck disable=SC2034
 _global_variables() {
@@ -473,11 +475,7 @@ _keys_export() {
     _export_secret \
     _keys_amount \
     _address
-  _address="$(
-    evm-wallet \
-      get \
-        "${_wallet_name}" \
-        "address")"
+  _address="${_wallet_address}"
   _keys_enumerate \
     "${_gnupg_home}" \
     "${_address}"
@@ -677,7 +675,8 @@ _keys_new_cmd() {
     _full_name \
     _tmp_file \
     _query \
-    _fingerprints=()
+    _fingerprints=() \
+    _export_address
   _tmp_file="${_cache_dir}/temp.key"
   _keys_new_args_parse
   _keys_new \
@@ -686,9 +685,14 @@ _keys_new_cmd() {
     "${_full_name}" \
     "${_key_passphrase}" \
     "${_key_comment}"
+  _export_address="$(
+    evm-wallet \
+      get \
+        "${_wallet_name}" \
+        "address")"
   _keys_export \
     "${_gnupg_home}" \
-    "${_wallet_address}" \
+    "${_export_address}" \
     "${_wallet_name}" \
     "${_tmp_file}" \
     "public"
@@ -820,11 +824,21 @@ _keys_publish_cmd() {
 
 _keys_export_cmd() {
   local \
+    _address \
     _out_file
   _out_file="${_command_key}"
+  if (( 0 < "${#_command_args[@]}" )); then
+    _address="${_command_args[0]}"
+  else
+    _address="$(
+      evm-wallet \
+        get \
+          "${_wallet_name}" \
+          "address")"
+  fi
   _keys_export \
     "${_gnupg_home}" \
-    "${_wallet_address}" \
+    "${_address}" \
     "${_wallet_name}" \
     "${_out_file}" \
     "${_key_type}"
@@ -1266,6 +1280,8 @@ Usage:
       <import-source>
     export
       (<out-file>)
+      (<key-type>)
+      (<address>)
     publish
       (<filter>)
     receive
